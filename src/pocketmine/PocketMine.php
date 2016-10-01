@@ -98,7 +98,7 @@ namespace pocketmine {
 	}
 
 	if(php_sapi_name() !== "cli"){
-		echo "[CRITICAL] You must run PocketMine-MP using the CLI.";
+		echo "[CRITICAL] You must run PocketMine-MP using the CLI." . PHP_EOL;
 		exit(1);
 	}
 
