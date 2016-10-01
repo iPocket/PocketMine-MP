@@ -469,9 +469,6 @@ namespace pocketmine {
 	$killer->start();
 
 	foreach(ThreadManager::getInstance()->getAll() as $id => $thread){
-		if($thread->getThreadName() == "ServerKiller"){
-			continue;
-		}
 		$logger->debug("Stopping " . $thread->getThreadName() . " thread");
 		$thread->quit();
 	}
