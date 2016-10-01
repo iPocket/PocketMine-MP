@@ -97,6 +97,11 @@ namespace pocketmine {
 		exit(1);
 	}
 
+	if(php_sapi_name() !== "cli"){
+		echo "[CRITICAL] You must run PocketMine-MP using the CLI.";
+		exit(1);
+	}
+
 	if(!extension_loaded("pthreads")){
 		echo "[CRITICAL] Unable to find the pthreads extension." . PHP_EOL;
 		echo "[CRITICAL] Please use the installer provided on the homepage." . PHP_EOL;
@@ -377,15 +382,10 @@ namespace pocketmine {
 	}
 
 	function cleanPath($path){
-		return rtrim(str_replace(["\\", ".php", "phar://", rtrim(str_replace(["\\", "phar://"], ["/", ""], \pocketmine\PATH), "/"), rtrim(str_replace(["\\", "phar://"], ["/", ""], \pocketmine\PLUGIN_PATH), "/")], ["/", "", "", "", ""], $path), "/");
+		return rtrim(str_replace(["\\", ".php", "phar://", rtrim(str_replace(["\\", "phar://"], ["/", ""], \pocketmine\PATH), "/"), rtrim(str_replace(["\\", "phar://"], ["/", ""], \pocketmine\PLUGIN_PATH), "/")], [DIRECTORY_SEPARATOR, "", "", "", ""], $path), "/");
 	}
 
 	$errors = 0;
-
-	if(php_sapi_name() !== "cli"){
-		$logger->critical("You must run PocketMine-MP using the CLI.");
-		++$errors;
-	}
 
 	if(!extension_loaded("sockets")){
 		$logger->critical("Unable to find the Socket extension.");
@@ -401,9 +401,9 @@ namespace pocketmine {
 		++$errors;
 	}
 
-	if(!extension_loaded("uopz")){
+	/*if(!extension_loaded("uopz")){
 		//$logger->notice("Couldn't find the uopz extension. Some functions may be limited");
-	}
+	}*/
 
 	if(extension_loaded("pocketmine")){
 		if(version_compare(phpversion("pocketmine"), "0.0.1") < 0){
@@ -465,13 +465,16 @@ namespace pocketmine {
 
 	$logger->info("Stopping other threads");
 
+	$killer = new ServerKiller(8);
+	$killer->start();
+
 	foreach(ThreadManager::getInstance()->getAll() as $id => $thread){
+		if($thread->getThreadName() == "ServerKiller"){
+			continue;
+		}
 		$logger->debug("Stopping " . $thread->getThreadName() . " thread");
 		$thread->quit();
 	}
-
-	$killer = new ServerKiller(8);
-	$killer->start();
 
 	$logger->shutdown();
 	$logger->join();
@@ -479,5 +482,4 @@ namespace pocketmine {
 	echo Terminal::$FORMAT_RESET . "\n";
 
 	exit(0);
-
 }
