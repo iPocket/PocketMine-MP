@@ -13,6 +13,7 @@ memoryDump_*/*
 # Common IDEs
 .idea/*
 nbproject/*
+.vscode/*
 
 # Windows image file caches
 Thumbs.db
